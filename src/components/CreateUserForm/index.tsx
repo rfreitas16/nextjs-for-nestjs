@@ -47,7 +47,7 @@ export function CreateUserForm() {
           labelText='E-mail'
           placeholder='Sua e-mail'
           disabled={isPending}
-          defaultValue={state.user.name}
+          defaultValue={state.user.email}
           required
         />
         <InputText

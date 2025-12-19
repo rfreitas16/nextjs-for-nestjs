@@ -13,5 +13,7 @@ npm run migrate
 npm run build
 #apenas para teste
 npm start
+#subir server com watch
+npm run dev
 
 ```
