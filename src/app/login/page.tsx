@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Login',
-}
+};
 
 export default async function AdminLoginPage() {
   const allowLogin = Boolean(Number(process.env.ALLOW_LOGIN));

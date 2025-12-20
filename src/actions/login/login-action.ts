@@ -1,56 +1,61 @@
 'use server';
 
-import { createLoginSession, verifyPassword } from '@/lib/login/manage-login';
+import { createLoginSessionFromApi } from '@/lib/login/manage-login';
+import { LoginSchema } from '@/lib/login/schemas';
+import { apiRequest } from '@/utils/api-rest';
 import { asyncDelay } from '@/utils/async-delay';
+import { getZodErrorMessages } from '@/utils/get-zod-error-messages';
 import { redirect } from 'next/navigation';
 
 type LoginActionState = {
-  username: string;
-  error: string;
+  email: string;
+  errors: string[];
 };
 
 export async function loginAction(state: LoginActionState, formData: FormData) {
   const allowLogin = Boolean(Number(process.env.ALLOW_LOGIN));
   if (!allowLogin) {
     return {
-      username: '',
-      error: 'Login allowed',
+      email: '',
+      errors: ['Login allowed'],
     };
   }
   await asyncDelay(5000); // Vou manter
 
   if (!(formData instanceof FormData)) {
     return {
-      username: '',
-      error: 'Dados Invalidos',
+      email: '',
+      errors: ['Dados Invalidos'],
     };
   }
-  //Dados que o usuario digitou no formulario
-  const username = formData.get('username')?.toString().trim() || '';
-  const password = formData.get('password')?.toString().trim() || '';
 
-  if (!username || !password) {
+  const formObj = Object.fromEntries(formData.entries());
+  const forEmail = formObj?.email?.toString() || '';
+  const parsedFormData = LoginSchema.safeParse(formObj);
+
+  if (!parsedFormData.success) {
     return {
-      username,
-      error: 'Digite o usuario ou senha',
+      email: forEmail,
+      errors: getZodErrorMessages(parsedFormData.error),
     };
   }
 
-  const isUsernameValid = username === process.env.LOGIN_USER;
-  const isPasswordValid = await verifyPassword(
-    password,
-    process.env.LOGIN_PASS || '',
+  const loginResponse = await apiRequest<{ accessToken: string }>(
+    '/auth/login',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(parsedFormData.data),
+    },
   );
-
-  if (!isUsernameValid || !isPasswordValid) {
+  if (!loginResponse.success) {
     return {
-      username,
-      error: 'Usuario ou senha invalidos',
+      email: forEmail,
+      errors: loginResponse.errors,
     };
   }
-  //aqui o usuario e senha sao validos
-  //criar o cookie e redirecionar a pagina
-
-  await createLoginSession(username);
-  redirect('/admin/post');
+  await createLoginSessionFromApi(loginResponse.data.accessToken);
+  redirect('/admin/login');
 }

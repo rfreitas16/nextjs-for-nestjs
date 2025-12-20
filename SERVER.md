@@ -9,6 +9,7 @@ npm i
 
 #Seed é opcional
 npm run migrate
+npm run seed #opcional
 #buildar o projeto
 npm run build
 #apenas para teste

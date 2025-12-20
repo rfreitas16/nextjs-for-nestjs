@@ -4,7 +4,11 @@ import { findPulicPostBySlugCached } from '@/lib/post/queries/public';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Crie sua conta',
+};
 
 type PostSlugPageProps = {
   params: Promise<{ slug: string }>;
