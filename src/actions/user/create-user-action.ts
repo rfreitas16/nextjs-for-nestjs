@@ -5,7 +5,7 @@ import {
   PublicUserDto,
   PublicUserSchema,
 } from '@/lib/user/schemas';
-import { apiRequest } from '@/utils/api-rest';
+import { apiRequest } from '@/utils/api-request';
 import { asyncDelay } from '@/utils/async-delay';
 import { getZodErrorMessages } from '@/utils/get-zod-error-messages';
 import { redirect } from 'next/navigation';
