@@ -1,25 +1,32 @@
-import { findAllPublicPostsCached } from '@/lib/post/queries/public';
+import { findAllPublicPostsFromApiCached } from '@/lib/post/queries/public';
+import ErrorMessage from '../ErrorMessage';
 import { PostCoverImage } from '../PostCoverImage';
 import { PostSummary } from '../PostSummary';
-import ErrorMessage from '../ErrorMessage';
 
 export async function PostFeatured() {
-  const posts = await findAllPublicPostsCached();
+  const postsRes = await findAllPublicPostsFromApiCached();
+  const noPostsFound = (
+    <ErrorMessage
+      contentTitle='Ops 😅'
+      content='Ainda não criamos nenhum post.'
+    />
+  );
 
-  if (posts.length <= 0)
-    return (
-      <ErrorMessage
-        contentTitle='Ops'
-        content='Ainda nao criamos nenhum post. 😂'
-      />
-    );
+  if (!postsRes.success) {
+    return noPostsFound;
+  }
+
+  const posts = postsRes.data;
+
+  if (posts.length <= 0) {
+    return noPostsFound;
+  }
+
   const post = posts[0];
   const postLink = `/post/${post.slug}`;
+
   return (
-    <section
-      className='grid grid-cols-1 gap-8 mb-16
-      sm:grid-cols-2 group'
-    >
+    <section className='grid grid-cols-1 gap-8 mb-16 sm:grid-cols-2 group'>
       <PostCoverImage
         linkProps={{
           href: postLink,
@@ -32,6 +39,7 @@ export async function PostFeatured() {
           priority: true,
         }}
       />
+
       <PostSummary
         postLink={postLink}
         postHeading='h1'

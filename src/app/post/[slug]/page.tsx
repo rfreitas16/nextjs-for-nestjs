@@ -1,10 +1,10 @@
 import { SinglePost } from '@/components/SinglePost';
 import { SpinsLoader } from '@/components/SpinLoader';
-import { findPulicPostBySlugCached } from '@/lib/post/queries/public';
+import { findPublicPostBySlugFromApiCached } from '@/lib/post/queries/public';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
 
 type PostSlugPageProps = {
   params: Promise<{ slug: string }>;
@@ -14,7 +14,14 @@ export async function generateMetadata({
   params,
 }: PostSlugPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await findPulicPostBySlugCached(slug);
+  const postRes = await findPublicPostBySlugFromApiCached(slug);
+
+  if (!postRes.success) {
+    return {};
+  }
+
+  const post = postRes.data;
+
   return {
     title: post.title,
     description: post.excerpt,

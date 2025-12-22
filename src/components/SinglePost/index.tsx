@@ -1,18 +1,25 @@
-import { findPulicPostBySlugCached } from '@/lib/post/queries/public';
+import { findPublicPostBySlugFromApiCached } from '@/lib/post/queries/public';
 import Image from 'next/image';
+import { PostHeading } from '../PostHeading';
 import { PostDate } from '../PostDate';
 import { SafeMarkdown } from '../SafeMarkdown';
-import { PostHeading } from '../PostHeading';
+import { notFound } from 'next/navigation';
 
 type SinglePostProps = {
   slug: string;
 };
 
 export async function SinglePost({ slug }: SinglePostProps) {
-  const post = await findPulicPostBySlugCached(slug);
+  const postRes = await findPublicPostBySlugFromApiCached(slug);
+
+  if (!postRes.success) {
+    notFound();
+  }
+
+  const post = postRes.data;
   return (
     <article className='mb-16'>
-      <header className='flex flex-col gap-4 mb-4'>
+      <header className='group flex flex-col gap-4 mb-4'>
         <Image
           className='rounded-xl'
           src={post.coverImageUrl}
@@ -20,12 +27,16 @@ export async function SinglePost({ slug }: SinglePostProps) {
           height={720}
           alt={post.title}
         />
+
         <PostHeading url={`/post/${post.slug}`}>{post.title}</PostHeading>
+
         <p>
-          {post.author} | <PostDate dateTime={post.createdAt} />
+          {post.author.name} | <PostDate dateTime={post.createdAt} />
         </p>
       </header>
-      <p className='mb-4 text-xl text-slate-600'>{post.excerpt}</p>
+
+      <p className='text-xl mb-4 text-slate-600'>{post.excerpt}</p>
+
       <SafeMarkdown markdown={post.content} />
     </article>
   );
