@@ -46,7 +46,6 @@ export function LoginForm() {
     }
   }, [userChanged, created, router]);
 
-
   return (
     <div
       className={clsx(
