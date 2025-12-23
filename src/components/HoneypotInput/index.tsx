@@ -6,7 +6,7 @@ export function HoneypotInput() {
       type='text'
       autoComplete='new-password'
       tabIndex={-1}
-      defaultValue='asdCJMDaIdjiPaJDaIdijsaO321386ODAdsaodAdsad132'
+      defaultValue=''
     />
   );
 }
